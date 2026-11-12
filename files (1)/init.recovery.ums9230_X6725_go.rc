@@ -1,0 +1,116 @@
+#add for board init.rc for recovery mode
+import /init.recovery.common.rc
+
+
+on early-fs
+start vold
+on fs
+start prepdecrypt 
+
+
+
+
+service prepdecrypt /system/bin/prepdecrypt.sh
+oneshot
+disabled
+user root
+group root
+seclabel u:r:recovery:s0
+
+service keystore2 /system/bin/keystore2 /data/misc/keystore
+user root
+group root
+disabled
+seclabel u:r:recovery:s0
+
+
+service vendor.health-default /system/bin/android.hardware.health-service.example
+class hal
+user root
+group root
+capabilities WAKE_ALARM
+file /dev/kmsg w
+seclabel u:r:recovery:s0
+    
+service keymint-2-0 /system/bin/android.hardware.security.keymint@2.0-unisoc.service.trusty
+user root
+group root drmrpc
+disabled
+seclabel u:r:recovery:s0
+
+service gatekeeper-1-0 /system/bin/android.hardware.gatekeeper@1.0-service.trusty
+class hal
+user root
+group root
+disabled
+seclabel u:r:recovery:s0
+
+on property:vendor.sys.listener.registered=true
+start keymint-2-0
+start gatekeeper-1-0
+
+on property:crypto.ready=1 && property:ro.crypto.state=encrypted
+start keymint-2-0
+start gatekeeper-1-0
+
+on property:crypto.ready=1 && property:hwservicemanager.ready=true
+ start keymint-2-0
+start gatekeeper-1-0
+
+on property:ro.crypto.state=unsupported || property:ro.crypto.state=unencrypted || property:twrp.decrypt.done=true
+stop keymint-2-0
+stop gatekeeper-1-0
+
+on boot
+#install_keyring
+start keymint-2-0
+start gatekeeper-1-0
+start boot-hal-1-2
+start health-hal-2-1
+start vendor.health-default
+
+
+# Logger
+service boot_log /system/bin/logcat -b all -D -f /metadata/boot_log_full.txt
+    class main
+    user root
+    group root system
+    disabled
+    oneshot
+
+service boot_log_crash /system/bin/logcat -b crash -D -f /metadata/boot_log_crash.txt
+    class main
+    user root
+    group root system
+    disabled
+    oneshot
+
+service boot_log_kernel /system/bin/logcat -b kernel -D -f /metadata/boot_log_kernel.txt
+    class main
+    user root
+    group root system
+    disabled
+    oneshot
+
+on init
+# Logger
+    start boot_log
+    start boot_log_crash
+    start boot_log_kernel
+
+on post-fs
+# Logger
+    start boot_log
+    start boot_log_crash
+    start boot_log_kernel
+
+on early-boot
+# Logger
+    start boot_log
+    start boot_log_crash
+    start boot_log_kernel
+
+on property:sys.boot_completed=1
+    stop boot_log
+    stop boot_log_crash
+    stop boot_log_kernel

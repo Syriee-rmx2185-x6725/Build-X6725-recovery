@@ -1,0 +1,93 @@
+# UNTESTED draft generated from stock vendor_boot_a.img / boot_a.img of X6725 (Android 15 build, vendor API 33)
+DEVICE_PATH := device/infinix/X6725
+BOARD_VENDOR := infinix
+
+TARGET_ARCH := arm64
+TARGET_ARCH_VARIANT := armv8-a
+TARGET_CPU_ABI := arm64-v8a
+TARGET_CPU_VARIANT := generic
+TARGET_CPU_VARIANT_RUNTIME := cortex-a55
+TARGET_2ND_ARCH :=
+TARGET_IS_64_BIT := true
+TARGET_SUPPORTS_64_BIT_APPS := true
+
+TARGET_BOARD_PLATFORM := ums9230
+TARGET_BOOTLOADER_BOARD_NAME := ums9230_X6725_go
+TARGET_NO_BOOTLOADER := true
+TARGET_NO_RADIOIMAGE := true
+
+# Kernel: stock GKI 5.15.194 prebuilt, uncompressed Image, boot header v4
+TARGET_NO_KERNEL := false
+TARGET_PREBUILT_KERNEL := $(DEVICE_PATH)/prebuilt/kernel
+TARGET_PREBUILT_DTB := $(DEVICE_PATH)/prebuilt/dtb
+BOARD_PREBUILT_DTBIMAGE_DIR := $(DEVICE_PATH)/prebuilt
+BOARD_INCLUDE_DTB_IN_BOOTIMG := true
+BOARD_BOOT_HEADER_VERSION := 4
+BOARD_KERNEL_PAGESIZE := 4096
+BOARD_KERNEL_BASE := 0x00000000
+BOARD_KERNEL_OFFSET := 0x00008000
+BOARD_RAMDISK_OFFSET := 0x05400000
+BOARD_DTB_OFFSET := 0x01f00000
+BOARD_MKBOOTIMG_ARGS += --header_version $(BOARD_BOOT_HEADER_VERSION)
+BOARD_MKBOOTIMG_ARGS += --pagesize $(BOARD_KERNEL_PAGESIZE)
+BOARD_MKBOOTIMG_ARGS += --kernel_offset $(BOARD_KERNEL_OFFSET)
+BOARD_MKBOOTIMG_ARGS += --ramdisk_offset $(BOARD_RAMDISK_OFFSET)
+BOARD_MKBOOTIMG_ARGS += --dtb_offset $(BOARD_DTB_OFFSET)
+BOARD_MKBOOTIMG_ARGS += --vendor_cmdline "console=ttyS1,115200n8 bootconfig"
+BOARD_BOOTCONFIG := androidboot.hardware=ums9230_X6725_go androidboot.dtbo_idx=0
+
+# Recovery lives in vendor_boot (boot_a has no ramdisk)
+BOARD_MOVE_RECOVERY_RESOURCES_TO_VENDOR_BOOT := true
+BOARD_INCLUDE_RECOVERY_RAMDISK_IN_VENDOR_BOOT := true
+BOARD_USES_RECOVERY_AS_BOOT :=
+BOARD_EXCLUDE_KERNEL_FROM_RECOVERY_IMAGE := true
+BOARD_RAMDISK_USE_LZ4 := true
+
+# Vendor modules needed in recovery (176 listed in stock modules.load.recovery)
+TW_LOAD_VENDOR_BOOT_MODULES := true
+BOARD_VENDOR_RAMDISK_KERNEL_MODULES_LOAD := $(strip $(shell cat $(DEVICE_PATH)/prebuilt/modules/modules.load))
+BOARD_VENDOR_RAMDISK_KERNEL_MODULES := $(wildcard $(DEVICE_PATH)/prebuilt/modules/*.ko)
+
+# Dynamic partitions. VERIFY super size with: lpdump / fastboot getvar super-partition-size
+BOARD_SUPER_PARTITION_SIZE := 8189378560
+BOARD_SUPER_PARTITION_GROUPS := infinix_dynamic_partitions
+BOARD_INFINIX_DYNAMIC_PARTITIONS_PARTITION_LIST := system system_ext vendor product odm vendor_dlkm system_dlkm
+BOARD_INFINIX_DYNAMIC_PARTITIONS_SIZE := 8185184256
+BOARD_BUILD_SUPER_IMAGE_BY_DEFAULT := false
+
+# Filesystems / partition sizes (boot=64MiB, vendor_boot=100MiB from your dumps)
+BOARD_BOOTIMAGE_PARTITION_SIZE := 67108864
+BOARD_VENDOR_BOOTIMAGE_PARTITION_SIZE := 104857600
+BOARD_FLASH_BLOCK_SIZE := 262144
+TARGET_USERIMAGES_USE_EXT4 := true
+TARGET_USERIMAGES_USE_F2FS := true
+TARGET_COPY_OUT_VENDOR := vendor
+BOARD_HAS_LARGE_FILESYSTEM := true
+
+# AVB
+BOARD_AVB_ENABLE := true
+BOARD_AVB_MAKE_VBMETA_IMAGE_ARGS += --flags 3
+
+# Crypto (stock userdata: FBE aes-256-xts v2 + inlinecrypt_optimized, metadata encryption)
+TW_INCLUDE_CRYPTO := true
+TW_INCLUDE_CRYPTO_FBE := true
+BOARD_USES_METADATA_PARTITION := true
+PLATFORM_VERSION := 14
+PLATFORM_SECURITY_PATCH := 2024-09-05
+VENDOR_SECURITY_PATCH := 2024-09-05
+
+# TWRP / OrangeFox
+TARGET_RECOVERY_FSTAB := $(DEVICE_PATH)/recovery.fstab
+TARGET_RECOVERY_PIXEL_FORMAT := RGBX_8888
+TARGET_USES_MKE2FS := true
+RECOVERY_SDCARD_ON_DATA := true
+TW_THEME := portrait_hdpi
+TW_EXTRA_LANGUAGES := true
+TW_USE_TOOLBOX := true
+TW_INCLUDE_NTFS_3G := true
+TW_INPUT_BLACKLIST := "hbtp_vm"
+TW_BRIGHTNESS_PATH := "/sys/class/backlight/sprd_backlight/brightness"
+TW_MAX_BRIGHTNESS := 255
+TW_DEFAULT_BRIGHTNESS := 120
+TW_EXCLUDE_DEFAULT_USB_INIT := true
+TW_NO_SCREEN_BLANK := true

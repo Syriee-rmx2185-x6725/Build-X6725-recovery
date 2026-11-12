@@ -1,0 +1,2 @@
+PRODUCT_MAKEFILES := $(LOCAL_DIR)/twrp_X6725.mk
+COMMON_LUNCH_CHOICES := fox_X6725-eng fox_X6725-userdebug
